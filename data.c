@@ -1,26 +1,78 @@
 #include <stdio.h>
 #include "data.h"
 
-int main()
+char *my_itoa(int val, char *buf, unsigned radix)
 {
+    char   *p;
+    char   *firstdig;
+    char   temp;
+    unsigned   digval;
+    p = buf;
     
-    //Test code for my_atoi
-    char test_atoi[10] = "100";
-    int value = my_atoi(test_atoi);
-    printf("(atoi) Value = %d\n", value);
+    if(val <0)
+    {
+        *p++ = '-';
+        val = (unsigned long)(-(long)val);
+    }
     
-    //Test code for my_itoa
-    int test_itoa = 10;
-    char buffer[20];
-    my_itoa(test_itoa,buffer,2);   // here 2 means binary
-    printf("(itoa) Binary Value = %s\n", buffer);
+    firstdig = p;
     
-    my_itoa(test_itoa,buffer,10);   // here 10 means decimal
-    printf("(itoa) Decimal Value = %s\n", buffer);
+    do{
+        digval = (unsigned)(val % radix);
+        val /= radix;
+        
+        if  (digval > 9)
+            *p++ = (char)(digval - 10 + 'a');
+        else
+            *p++ = (char)(digval + '0');
+    }while(val > 0);
     
-    my_itoa(test_itoa,buffer,16);   // here 16 means Hexadecimal
-    printf("(itoa) Hexadecimal Value = %s\n", buffer);
-    return 0;
-    
-    
+    *p-- = '\0 ';
+    do{
+        temp = *p;
+        *p = *firstdig;
+        *firstdig = temp;
+        --p;
+        ++firstdig;
+    }while(firstdig < p);
+    return buf;
 }
+
+
+
+static int my_atoi(const char* str)
+{
+    int result = 0;
+    int sign = 0;
+    
+    // whitespace characters
+    while (*str==' ' || *str=='\t' || *str=='\n')
+        ++str;
+    
+    //sign character
+    if (*str=='-')
+    {
+        sign = 1;
+        ++str;
+    }
+    else if (*str=='+')
+    {
+        ++str;
+    }
+    
+    //numbers
+    while (*str>='0' && *str<='9')
+    {
+        result = result*10 + *str - '0';
+        ++str;
+    }
+    
+    // return result
+    if (sign==1)
+        return -result;
+    else
+        return result;
+}
+ 
+
+
