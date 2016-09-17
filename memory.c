@@ -1,13 +1,19 @@
 #include <stdio.h>
-#include <string.h>
+#include "memory.h"
 
 int main(int argc, const char * argv[]) {
     
-    char dest[] = "abc";
-    char src[]  = "def";
-    memmove(src, dest, 3);
-    printf("After memmove, dest = %s, src = %sn", dest, src);
+    //Test for memmove
+    char dest[] = "newstring";
+    char src[]  = "oldstring";
+    memmove(src, dest, 9);
+    printf("(memmove) dest = %s, src = %s\n", dest, src);
+    
+    
+    //Test for my_reverse
+    char string[] = "foobar";
+    my_reverse(string);
+    printf("(my_reverse) %s\n", string);
     
     return 0;
 }
-

@@ -1,6 +1,8 @@
 #ifndef memove_memove_h
 #define memove_memove_h
 
+#include <string.h>
+
 void memmov(int *src, int *dst, int length)
 {
     if (src <= dst)
@@ -20,6 +22,19 @@ void memmov(int *src, int *dst, int length)
     }
 }
 
+void my_reverse(char* str){
+    char temp;
+    char* end;
+    end = str + strlen(str)-1;
+    
+    while(end>str){
+        temp = *end;
+        *end = *str;
+        *str = temp;
+        end--;
+        str++;
+    }
+}
 
 #endif
 
