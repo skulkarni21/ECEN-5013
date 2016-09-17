@@ -1,29 +1,47 @@
 #include <stdio.h>
 #include "memory.h"
+#include <string.h>
 
-#define MAXSIZE 100000
-
-int main(int argc, const char * argv[]) {
-    
-    //Test for memmove
-    char dest[] = "newstring";
-    char src[]  = "oldstring";
-    memmove(src, dest, 9);
-    printf("(memmove) dest = %s, src = %s\n", dest, src);
-    
-    
-    //Test for my_reverse
-    char string[] = "foobar";
-    my_reverse(string);
-    printf("(my_reverse) %s\n", string);
-    
-    
-    //Test for my_memzero
-    char arr[MAXSIZE];
-    for(int i=0;i<3;i++)
+void memmov(int *src, int *dst, int length)
+{
+    if (src <= dst)
     {
-        my_memzero(arr,'0',sizeof(arr));
+        int *se = src + length - 1;
+        int *te = dst + length - 1;
+        
+        while(se >= src)
+            *te-- = *se--;
     }
+    else
+    {
+        int *sb = src;
+        int *tb = dst;
+        while(sb < src+length)
+            *tb++ = *sb++;
+    }
+}
 
-    return 0;
+
+void *(my_memzero) (void *src,int c,size_t length)
+{
+    const unsigned char uc = c;
+    unsigned char *ptr;
+    for(ptr = src; 0 < length ; ++ptr, --length)
+        *ptr = uc;
+        return src;
+}
+
+
+void my_reverse(char* str){
+    char temp;
+    char* end;
+    end = str + strlen(str)-1;
+    
+    while(end>str){
+        temp = *end;
+        *end = *str;
+        *str = temp;
+        end--;
+        str++;
+    }
 }

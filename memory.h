@@ -3,49 +3,14 @@
 
 #include <string.h>
 
-void memmov(int *src, int *dst, int length)
-{
-    if (src <= dst)
-    {
-        int *se = src + length - 1;
-        int *te = dst + length - 1;
-        
-        while(se >= src)
-            *te-- = *se--;
-    }
-    else
-    {
-        int *sb = src;
-        int *tb = dst;
-        while(sb < src+length)
-            *tb++ = *sb++;
-    }
-}
+//This would take two pointers (one source and one destination) and a length of bytes to move from one location to the other.
+void memmov(int *src, int *dst, int length);
 
+//This would take a pointer to a memory location and a length in bytes and zero out all of the memory.
+void *(my_memzero) (void *src,int c,size_t length);
 
-void *(my_memzero) (void *src,int c,size_t length)
-{
-    const unsigned char uc = c;
-    unsigned char *ptr;
-    for(ptr = src; 0 < length ; ++ptr, --length)
-        *ptr = uc;
-        return src;
-}
-
-
-void my_reverse(char* str){
-    char temp;
-    char* end;
-    end = str + strlen(str)-1;
-    
-    while(end>str){
-        temp = *end;
-        *end = *str;
-        *str = temp;
-        end--;
-        str++;
-    }
-}
+//This would take a pointer to a memory location and a length in bytes and reverse the order of all of the bytes.
+void my_reverse(char* str);
 
 #endif
 
