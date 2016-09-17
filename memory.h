@@ -22,6 +22,17 @@ void memmov(int *src, int *dst, int length)
     }
 }
 
+
+void *(my_memzero) (void *src,int c,size_t length)
+{
+    const unsigned char uc = c;
+    unsigned char *ptr;
+    for(ptr = src; 0 < length ; ++ptr, --length)
+        *ptr = uc;
+        return src;
+}
+
+
 void my_reverse(char* str){
     char temp;
     char* end;
