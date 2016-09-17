@@ -62,23 +62,23 @@ else
 endif
 
 #Target for building
-build: $(OBJ)
+build: arch $(OBJ)
 	$(CC) $(CFLAGS) -o $(TARGET) $^
 
 # Targets for creating only preprocessed .i files
-preprocess: $(PREPROC)
+preprocess: arch $(PREPROC)
 
 %.i : %.c
 	$(CC) -E -I. $(CFLAGS) -o $@ $<
 
 # Targets for creating assembler files with .s extention
-asm: $(ASM)
+asm: arch $(ASM)
 
 %.s : %.i
 	$(CC) -S $(CFLAGS) -o $@ $<
 
 # Targets for creating object files. Obeject files can be stored in derectory mentioned by $(OBJDIR)
-compile-all: $(OBJ)
+compile-all: arch $(OBJ)
 
 $(OBJDIR)/%.o : %.s
 	$(CC) -c $(CFLAGS) -o $@ $<
@@ -90,4 +90,4 @@ clean:
 	rm -f *.s
 	rm -f $(OBJDIR)/*.o
 
-
+.PHONEY: arch
