@@ -9,24 +9,35 @@
 
 # variables common to all environments
 
+# Declaring vpath variables
+vpath %.c src
+vpath %.i preproc
+vpath %.o obj
+
+INCLUDE = ./include
 # Name of the Target file
 TARGET = project
 
-# Name of the source file
-SRC = $(wildcard *.c)
+# Name of the source files
+SRC = main.c add.c
 
 #Directory to put the preprocessor files and variable to store all preprocessed files
-PREPROC_DIR =.
+PREPROC_DIR =./preproc
 PREPROC = $(patsubst %.c,%.i,$(SRC))
 
 #Directory to put the asembly files and variable to store all assembly files
-ASMDIR = .
+ASM_DIR = ./asm
 ASM= $(patsubst %.i, %.s, $(PREPROC))
 
 # Directory to put the object file. Dot(.) for current directory and variable to store all OBJ files
-OBJDIR = .
+OBJ_DIR = ./obj
 OBJ = $(patsubst %.s, %.o, $(ASM))
 
+# Flags to generate dependencies
+DEPFLAGS = -M ./dep/make.dep
+
+# Flags to generate map files
+LDFLAGS = -Wl,-Map=make.map
 
 # Optimisation level for the compiler it can be [0,1,2,s]
 OPT = 0
@@ -36,7 +47,8 @@ CSTANDARD = -std=c99
 
 # Creating CFLAGS common to all architecture
 # -Wall to enable warnings put by the GCC
-CFLAGS = -Wall
+#  -g to eanble debug
+CFLAGS = -Wall -g
 
 # Setting the optimisation level for GCC
 CFLAGS += -O$(OPT)
@@ -44,50 +56,82 @@ CFLAGS += -O$(OPT)
 # Setting the C standars
 CFLAGS += $(CSTANDARD)
 
-# Default Target which compiles, links and creates output files
-all: arch
-	$(CC) $(CFLAGS) -o $(TARGET) main.c
-
 # This target will determine the Architecture entered and will make changes to the variables
 # accordingly
-arch:
 ifeq ($(ARCH),bbb)
-# Eval is used for telling the makefile to evaluate the expressiom and assign the variable
-	$(eval CC = arm-linux-gnueabihf-gcc)
-	$(eval CFLAGS += -march=armv7-a -mtune=cortex-a8 -mfpu=neon)
+CC = arm-linux-gnueabihf-gcc
+CFLAGS += -march=armv7-a -mtune=cortex-a8 -mfpu=neon
+SIZE = arm-linux-gnueabihf-size
+OBJDUMP = arm-linux-gnueabi-objdump
+
+
+MESSAGE_ARCH = Compiling for BBB:
+
+
 else ifeq ($(ARCH), frdm)
-	$(eval CC = arm-none-eabi-gcc)
+CC = arm-none-eabi-gcc
+SIZE = arm-none-eabi-size
+OBJDUMP = arm-none-eabi-objdump
+
+MESSAGE_ARCH = Compiling for FRDM:
 else
-	$(eval CC = gcc)
+CC = gcc
+SIZE = size
+OBJDUMP = objdump
+
+MESSAGE_ARCH = Compiling for host:
 endif
 
 #Target for building
-build: arch $(OBJ)
-	$(CC) $(CFLAGS) -o $(TARGET) $^
-
+build: message $(OBJ)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ_DIR)/*.o
+	@if [ ! -d ./dep ]; then echo ;echo "Making directory for dependencies:"; mkdir ./dep;fi
+	$(CC) -M -I $(INCLUDE) ./src/*.c > ./dep/make.dep
+	@echo
+	@echo "making map file:"
+	$(CC) $(LDFLAGS) $(OBJ_DIR)/*.o --output make.map
+	@echo
+	@echo "Displaying size of executable:"
+	$(SIZE) $(TARGET)
 # Targets for creating only preprocessed .i files
-preprocess: arch $(PREPROC)
+preprocess: $(PREPROC)
 
 %.i : %.c
-	$(CC) -E -I. $(CFLAGS) -o $@ $<
+	@echo
+	@echo "Compiling:$<"
+	@if [ ! -d ./preproc ];then mkdir ./preproc ;fi
+	$(CC) -E -I $(INCLUDE) $(CFLAGS) -o $(PREPROC_DIR)/$@ $<
 
 # Targets for creating assembler files with .s extention
-asm: arch $(ASM)
+asm: $(ASM)
 
 %.s : %.i
-	$(CC) -S $(CFLAGS) -o $@ $<
+	@if [ ! -d ./asm ];then mkdir ./asm ;fi
+	$(CC) -S $(CFLAGS) -o $(ASM_DIR)/$@ $(PREPROC_DIR)/$<
 
 # Targets for creating object files. Obeject files can be stored in derectory mentioned by $(OBJDIR)
-compile-all: arch $(OBJ)
+compile-all: $(OBJ)
 
-$(OBJDIR)/%.o : %.s
-	$(CC) -c $(CFLAGS) -o $@ $<
+%.o : %.s
+	@if [ ! -d ./obj ];then mkdir ./obj ;fi
+	$(CC) -c $(CFLAGS) -o $(OBJ_DIR)/$@ $(ASM_DIR)/$<
 
+objdump:
+	$(OBJDUMP) -D $(TARGET)
 # Target for cleaning all the files
 clean:
+	@echo
+	@echo "Cleaning directory:"
 	rm -f $(TARGET)
-	rm -f *.i
-	rm -f *.s
-	rm -f $(OBJDIR)/*.o
+	rm -rf $(PREPROC_DIR)
+	rm -rf $(ASM_DIR)
+	rm -rf $(OBJ_DIR)
+	rm -rf ./dep
+	rm -rf make.map
+	@echo
 
-.PHONEY: arch
+message:
+	@echo
+	@echo $(MESSAGE_ARCH)
+
+.PHONEY: arch clean compile-all asm preprocess build
