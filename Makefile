@@ -9,22 +9,28 @@
 
 # variables common to all environments
 
+# Declaring vpath variables
+vpath %.c src
+vpath %.i preproc
+vpath %.o obj
+
+INCLUDE = ./include
 # Name of the Target file
 TARGET = project
 
 # Name of the source file
-SRC = $(wildcard *.c)
+SRC = main.c add.c
 
 #Directory to put the preprocessor files and variable to store all preprocessed files
-PREPROC_DIR =.
+PREPROC_DIR =./preproc
 PREPROC = $(patsubst %.c,%.i,$(SRC))
 
 #Directory to put the asembly files and variable to store all assembly files
-ASMDIR = .
+ASM_DIR = ./asm
 ASM= $(patsubst %.i, %.s, $(PREPROC))
 
 # Directory to put the object file. Dot(.) for current directory and variable to store all OBJ files
-OBJDIR = .
+OBJ_DIR = ./obj
 OBJ = $(patsubst %.s, %.o, $(ASM))
 
 
@@ -45,49 +51,50 @@ CFLAGS += -O$(OPT)
 CFLAGS += $(CSTANDARD)
 
 # Default Target which compiles, links and creates output files
-all: arch
-	$(CC) $(CFLAGS) -o $(TARGET) main.c
+#all: arch
+#	$(CC) $(CFLAGS) -o $(TARGET) main.c
 
 # This target will determine the Architecture entered and will make changes to the variables
 # accordingly
-arch:
 ifeq ($(ARCH),bbb)
-# Eval is used for telling the makefile to evaluate the expressiom and assign the variable
-	$(eval CC = arm-linux-gnueabihf-gcc)
-	$(eval CFLAGS += -march=armv7-a -mtune=cortex-a8 -mfpu=neon)
+CC = arm-linux-gnueabihf-gcc
+CFLAGS += -march=armv7-a -mtune=cortex-a8 -mfpu=neon
 else ifeq ($(ARCH), frdm)
-	$(eval CC = arm-none-eabi-gcc)
+CC = arm-none-eabi-gcc
 else
-	$(eval CC = gcc)
+CC = gcc
 endif
 
 #Target for building
-build: arch $(OBJ)
-	$(CC) $(CFLAGS) -o $(TARGET) $^
+build: $(OBJ)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ_DIR)/*.o
 
 # Targets for creating only preprocessed .i files
-preprocess: arch $(PREPROC)
+preprocess: $(PREPROC)
 
 %.i : %.c
-	$(CC) -E -I. $(CFLAGS) -o $@ $<
+	@if [ ! -d ./preproc ]; then echo "Making preproc directory"; mkdir ./preproc ;fi
+	$(CC) -E -I $(INCLUDE) $(CFLAGS) -o $(PREPROC_DIR)/$@ $<
 
 # Targets for creating assembler files with .s extention
-asm: arch $(ASM)
+asm: $(ASM)
 
 %.s : %.i
-	$(CC) -S $(CFLAGS) -o $@ $<
+	@if [ ! -d ./asm ]; then echo "Making directory for asembly code"; mkdir ./asm ;fi
+	$(CC) -S $(CFLAGS) -o $(ASM_DIR)/$@ $(PREPROC_DIR)/$<
 
 # Targets for creating object files. Obeject files can be stored in derectory mentioned by $(OBJDIR)
-compile-all: arch $(OBJ)
+compile-all: $(OBJ)
 
-$(OBJDIR)/%.o : %.s
-	$(CC) -c $(CFLAGS) -o $@ $<
+%.o : %.s
+	@if [ ! -d ./obj ]; then echo "Making directory for object file"; mkdir ./obj ;fi
+	$(CC) -c $(CFLAGS) -o $(OBJ_DIR)/$@ $(ASM_DIR)/$<
 
 # Target for cleaning all the files
 clean:
 	rm -f $(TARGET)
-	rm -f *.i
-	rm -f *.s
-	rm -f $(OBJDIR)/*.o
+	rm -rf $(PREPROC_DIR)
+	rm -rf $(ASM_DIR)
+	rm -rf $(OBJ_DIR)
 
-.PHONEY: arch
+.PHONEY: arch clean compile-all asm preprocess build
