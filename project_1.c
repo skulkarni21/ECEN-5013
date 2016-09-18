@@ -20,6 +20,9 @@ void project_1_report(){
     //reverse on aptr_1 to reverse the entire 32 bytes
     my_reverse(aptr_1);
 
+    //a pointer to memory and prints the hex output
+    dump_memory();
+
     //convert int to char using my_atoi
     my_atoi(aptr_1);
     
