@@ -2,36 +2,27 @@
 # Author:
 # Sarang Kulkarni
 #
-#
+# Group Members : Sarang Kulkarni Yu-Chih Cho
 #
 # This Makefile is aimed at being able to compile code on the host machine, Beaglebone Black and for the
 # Freescale FRDM Boards.
 
 # variables common to all environments
 
-# Declaring vpath variables
-vpath %.c src
-vpath %.i preproc
-vpath %.o obj
-
-INCLUDE = ./include
+include source.mk
 # Name of the Target file
 TARGET = project
 
-# Name of the source files
-SRC = main.c add.c
+# Variables for Beaglebone and FRDM paths
+BEAGLE_IP = 192.168.7.2
+BEAGLE_USR = root
+BEAGLE_PATH = /home/debian/bin
 
-#Directory to put the preprocessor files and variable to store all preprocessed files
-PREPROC_DIR =./preproc
-PREPROC = $(patsubst %.c,%.i,$(SRC))
+# Sets the shell command scp to UPLOAD variable
+UPLOAD = scp
 
-#Directory to put the asembly files and variable to store all assembly files
-ASM_DIR = ./asm
-ASM= $(patsubst %.i, %.s, $(PREPROC))
-
-# Directory to put the object file. Dot(.) for current directory and variable to store all OBJ files
-OBJ_DIR = ./obj
-OBJ = $(patsubst %.s, %.o, $(ASM))
+# Path to copy executable to FRDM
+FRDM_PATH = /media/$$USER/FRDM-KL25Z
 
 # Flags to generate dependencies
 DEPFLAGS = -M ./dep/make.dep
@@ -58,26 +49,37 @@ CFLAGS += $(CSTANDARD)
 
 # This target will determine the Architecture entered and will make changes to the variables
 # accordingly
+# CC = Compiler
+# CFLAGS = Options for GCC compiler
+# SIZE = mentions the GNU size
+# OBJDUMP = mention the GNU objdump
+# AR= mentions the GNU ar utility
+# REMOTE = mentions the remote path to SCP
+
 ifeq ($(ARCH),bbb)
 CC = arm-linux-gnueabihf-gcc
 CFLAGS += -march=armv7-a -mtune=cortex-a8 -mfpu=neon
 SIZE = arm-linux-gnueabihf-size
 OBJDUMP = arm-linux-gnueabi-objdump
-
+AR = arm-linux-gnueabi-ar
+REMOTE = $(BEAGLE_USR)@$(BEAGLE_IP):$(BEAGLE_PATH)
 
 MESSAGE_ARCH = Compiling for BBB:
-
 
 else ifeq ($(ARCH), frdm)
 CC = arm-none-eabi-gcc
 SIZE = arm-none-eabi-size
 OBJDUMP = arm-none-eabi-objdump
+AR = arm-none-eabi-ar
+REMOTE = $(FRDM_PATH)
 
 MESSAGE_ARCH = Compiling for FRDM:
+
 else
 CC = gcc
 SIZE = size
 OBJDUMP = objdump
+AR = ar
 
 MESSAGE_ARCH = Compiling for host:
 endif
@@ -88,11 +90,12 @@ build: message $(OBJ)
 	@if [ ! -d ./dep ]; then echo ;echo "Making directory for dependencies:"; mkdir ./dep;fi
 	$(CC) -M -I $(INCLUDE) ./src/*.c > ./dep/make.dep
 	@echo
-	@echo "making map file:"
+	@echo "Making map file:"
 	$(CC) $(LDFLAGS) $(OBJ_DIR)/*.o --output make.map
 	@echo
 	@echo "Displaying size of executable:"
 	$(SIZE) $(TARGET)
+
 # Targets for creating only preprocessed .i files
 preprocess: $(PREPROC)
 
@@ -102,7 +105,7 @@ preprocess: $(PREPROC)
 	@if [ ! -d ./preproc ];then mkdir ./preproc ;fi
 	$(CC) -E -I $(INCLUDE) $(CFLAGS) -o $(PREPROC_DIR)/$@ $<
 
-# Targets for creating assembler files with .s extention
+# Targets for creating assembler files w:qaith .s extention
 asm: $(ASM)
 
 %.s : %.i
@@ -116,8 +119,17 @@ compile-all: $(OBJ)
 	@if [ ! -d ./obj ];then mkdir ./obj ;fi
 	$(CC) -c $(CFLAGS) -o $(OBJ_DIR)/$@ $(ASM_DIR)/$<
 
+# Target
 objdump:
 	$(OBJDUMP) -D $(TARGET)
+
+upload:
+	@if [ ! -f $(TARGET) ]; then echo ; echo " No executable, run make build first" ;echo ; exit 2; fi
+	$(UPLOAD) $(TARGET) $(REMOTE)
+
+build-lib:
+	$(AR) cr libproject1.a ./obj/memory.o ./obj/data.o
+
 # Target for cleaning all the files
 clean:
 	@echo
@@ -132,6 +144,9 @@ clean:
 
 message:
 	@echo
+	@echo "Using the following compiler:"
+	@ $(CC) --version
+	@echo
 	@echo $(MESSAGE_ARCH)
 
-.PHONEY: arch clean compile-all asm preprocess build
+.PHONEY: arch asm build build-lib compile-all clean message objdump preprocess upload
