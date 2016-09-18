@@ -74,5 +74,12 @@ static int my_atoi(const char* str)
         return result;
 }
  
-
+int endian_conveter(int data)
+{
+    data = ((data & 0x000000FF) << 24) |
+    ((data & 0x0000FF00) <<  8) |
+    ((data & 0x00FF0000) >>  8) |
+    ((data & 0xFF000000) >> 24);
+    return data;
+}
 
