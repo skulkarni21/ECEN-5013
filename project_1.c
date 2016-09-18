@@ -10,6 +10,10 @@ void project_1_report(){
     aptr_1 = &array[0];
     aptr_2 = &array[8];
     aptr_3 = &array[16];
+
+    //Initialize memory at two of the pointers
+    *aptr_1 = *(int*)malloc(sizeof(int)*16);
+    my_memzero(aptr_3, 16);
     
     //move 8 bytes from aptr_1 to aptr_3
     memmove(aptr_1, aptr_3, 8);
@@ -20,7 +24,7 @@ void project_1_report(){
     //reverse on aptr_1 to reverse the entire 32 bytes
     my_reverse(aptr_1);
 
-    //a pointer to memory and prints the hex output
+    //pointer to memory and prints the hex output
     dump_memory();
 
     //convert int to char using my_atoi
