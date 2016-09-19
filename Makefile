@@ -25,10 +25,10 @@ UPLOAD = scp
 FRDM_PATH = /media/$$USER/FRDM-KL25Z
 
 # Flags to generate dependencies
-DEPFLAGS = -M ./dep/make.dep
+DEPFLAGS = -M ./dep/$(TARGET).dep
 
 # Flags to generate map files
-LDFLAGS = -Wl,-Map=make.map
+LDFLAGS = -Wl,-Map=$(TARGET).map
 
 # Optimisation level for the compiler it can be [0,1,2,s]
 OPT = 0
@@ -68,6 +68,7 @@ MESSAGE_ARCH = Compiling for BBB:
 
 else ifeq ($(ARCH), frdm)
 CC = arm-none-eabi-gcc
+CFLAGS += -mcpu=cortex-m0
 SIZE = arm-none-eabi-size
 OBJDUMP = arm-none-eabi-objdump
 AR = arm-none-eabi-ar
@@ -88,10 +89,10 @@ endif
 build: message $(OBJ)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ_DIR)/*.o
 	@if [ ! -d ./dep ]; then echo ;echo "Making directory for dependencies:"; mkdir ./dep;fi
-	$(CC) -M -I $(INCLUDE) ./src/*.c > ./dep/make.dep
+	$(CC) -M -I $(INCLUDE) ./src/*.c > ./dep/$(TARGET).dep
 	@echo
 	@echo "Making map file:"
-	$(CC) $(LDFLAGS) $(OBJ_DIR)/*.o --output make.map
+	$(CC) $(LDFLAGS) $(OBJ_DIR)/*.o --output $(TARGET).map
 	@echo
 	@echo "Displaying size of executable:"
 	$(SIZE) $(TARGET)
@@ -128,7 +129,7 @@ upload:
 	$(UPLOAD) $(TARGET) $(REMOTE)
 
 build-lib:
-	$(AR) cr libproject1.a ./obj/memory.o ./obj/data.o
+	$(AR) cr libproject1.a ./obj/*.o
 
 # Target for cleaning all the files
 clean:
@@ -139,7 +140,7 @@ clean:
 	rm -rf $(ASM_DIR)
 	rm -rf $(OBJ_DIR)
 	rm -rf ./dep
-	rm -rf make.map
+	rm -rf $(TARGET).map
 	@echo
 
 message:
