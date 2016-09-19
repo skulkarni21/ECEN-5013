@@ -5,7 +5,7 @@ vpath %.i preproc
 vpath %.o obj
 
 # Name of the source files
-SRC = main.c add.c
+SRC = main.c memory.c project_1.c
 
 INCLUDE = ./include
 
