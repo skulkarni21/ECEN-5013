@@ -2,7 +2,7 @@
 #define data_main_h
 
 //Integer-to-asciI needs to convert data from a standard integer type into an ascii string.
-char *my_itoa(int val, char *buf, unsigned radix);
+char *my_itoa(int data, char *buf, unsigned base);
 
 //AsciI-to-Integer needs to convert data back from an ASCII represented string into an integer type.
 static int my_atoi(const char* str);
