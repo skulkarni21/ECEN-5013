@@ -68,7 +68,7 @@ MESSAGE_ARCH = Compiling for BBB:
 
 else ifeq ($(ARCH), frdm)
 CC = arm-none-eabi-gcc
-CFLAGS += -mcpu=cortex-m0
+CFLAGS += -mcpu=cortex-m0plus -mthumb --specs=nosys.specs -march=armv6-m
 SIZE = arm-none-eabi-size
 OBJDUMP = arm-none-eabi-objdump
 AR = arm-none-eabi-ar
@@ -92,7 +92,7 @@ build: message $(OBJ)
 	$(CC) -M -I $(INCLUDE) ./src/*.c > ./dep/$(TARGET).dep
 	@echo
 	@echo "Making map file:"
-	$(CC) $(LDFLAGS) $(OBJ_DIR)/*.o --output $(TARGET).map
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ_DIR)/*.o --output $(TARGET).map
 	@echo
 	@echo "Displaying size of executable:"
 	$(SIZE) $(TARGET)
