@@ -1,3 +1,11 @@
+/***************************************************************************
+ *
+ *	Filename: main.c
+ *  Description:  This file is the main file for the project
+ *
+ *  Author: Sarang Kulkarni
+ *
+ *****************************************************************************/
 #include "main.h"
 uint8_t string[7]="sarang",sentence[200];
 uint8_t value, color=0,mode=0,i;
