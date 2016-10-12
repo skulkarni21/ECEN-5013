@@ -158,41 +158,71 @@ float TransferFloatingToDecimal(uint8_t s[32])
 }
 
 
-
 //Convert data from a standard float type into an asci string
-int8_t my_ftoa(uint8_t* ptr, float data)
+int8_t my_ftoa(uint8_t* str, float data)
 {
     uint16_t int_part;
-    uint16_t i=0,k=0;
+    float float_part;
+    uint16_t sign = 0;
     
-    //Deal with the integer
-    int_part=(uint16_t)data;
-    while(int_part>0)
+    uint16_t temp;
+    uint16_t count = 0;
+    uint16_t precision = 3; //at least 3 decimal places for the float part
+    
+    uint8_t *ptr;
+    uint8_t *ptr_1;
+    
+    if(str == NULL) return -1;
+    ptr = str;
+    
+    //if data < 0
+    if(data < 0)
     {
-        data/=10;
-        int_part=(uint16_t)data;
-        i++;
+        sign = 1;
+        data = 0 - data;
     }
-    *(ptr+i) = '.';
     
-    data *= 10;
     int_part = (uint16_t)data;
-    data = data-int_part;
+    float_part = data - int_part;
     
-    //transfer to ascii
-    while(int_part>0)
+    //Deal with the integer to string
+    do
     {
-        if(k == i)
-            k++;
-        *(ptr+k)=48+int_part;
-        
-        data *= 10;
-        int_part = (uint16_t)data;
-        data = data-int_part;
-        k++;
-    }
+        temp = int_part % 10;
+        *(str++) = temp + '0';
+    }while((int_part = int_part /10) != 0);
     
-    *(ptr+k) = '\0';
-    return data;
+    if(sign == 1)
+    {
+        *(str++) = '-';
+    }
+    ptr_1 = str;
+    ptr_1--;
+    
+    while(ptr < ptr_1)
+    {
+        *ptr = *ptr + *ptr_1;
+        *ptr_1 = *ptr - *ptr_1;
+        *ptr = *ptr -*ptr_1;
+        ptr++;
+        ptr_1--;
+    }
+    *(str++) = '.';     //point
+
+    //Deal with the float to string
+    do
+    {
+        temp = (uint16_t)(float_part*10);
+        *(str++) = temp + '0';
+
+        if((++count) == precision)
+            break;
+        
+        float_part = float_part*10 - temp;
+        
+    }while(!(float_part > -0.000001 && float_part < 0.000001));
+    
+    *str = '\0';
+    return 0;
 }
 
