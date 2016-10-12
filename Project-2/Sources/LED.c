@@ -1,3 +1,11 @@
+/***************************************************************************
+ *
+ *  	Filename: LED.c
+ *      Description:  This file contains the drivers for TPM PWM Module
+ *
+ *      Author: Sarang Kulkarni
+ *
+ ****************************************************************************/
 #include "MKL25Z4.h"
 #include "circbuff.h"
 #include "UART.h"

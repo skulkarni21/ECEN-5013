@@ -1,3 +1,11 @@
+/***************************************************************************
+ *
+ *  	Filename: UART.c
+ *      Description:  This file contains the drivers for PIT timer
+ *
+ *      Author: Sarang Kulkarni
+ *
+ ****************************************************************************/
 #include "timer.h"
 
 volatile uint32_t timer_val =0;
@@ -14,7 +22,6 @@ void pit_init(void){
 	PIT_TCTRL0 |= PIT_TCTRL_TIE_MASK; // Enable interrupt and enable timer
 
 	// Enable interrupt registers in NVIC
-	//NVIC->ISER[0] = (uint32_t)(1UL << (((uint32_t)(int32_t)PIT_IRQn) & 0x1FUL));
 	NVIC_EnableIRQ(PIT_IRQn);
 }
 

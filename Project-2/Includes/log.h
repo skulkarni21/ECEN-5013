@@ -6,9 +6,9 @@
 #include <string.h>
 #include "circbuff.h"
 #include "conversion.h"
+#include "main.h"
 
-void write_string(uint8_t *str);
-void log1(uint8_t * str, uint32_t param);
-void process(uint8_t value);
+void log0(uint8_t *str);
+void log3(uint8_t *str, float param);
 
 #endif

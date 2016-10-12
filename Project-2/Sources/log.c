@@ -1,7 +1,16 @@
+/***************************************************************************
+ *
+ *  	Filename: log.c
+ *      Description:	This file contains the code for log functions write_string
+ *      				and log3()
+ *
+ *      Author: Sarang Kulkarni
+ *
+ ****************************************************************************/
 #include "log.h"
 
 
-void write_string(uint8_t *str){
+void log0(uint8_t *str){
 	while(*str !='\0'){
 		add_item(&tx_buff, *str++);
 	}
@@ -10,9 +19,9 @@ void write_string(uint8_t *str){
 			UART0_C2 |= UART_C2_TIE_MASK;
 }
 
-void log1(uint8_t * str, uint32_t param){
+void log3(uint8_t *str, float param){
 	uint8_t a[20], i=0, str_final[100];
-	my_itoa(a, param,10);
+		my_ftoa(param, a,3);
 	while(*(str+i) !='\0'){
 		*(str_final+i) = *(str+i);
 		i++;

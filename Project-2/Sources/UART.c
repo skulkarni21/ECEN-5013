@@ -1,3 +1,12 @@
+/***************************************************************************
+ *
+ *  	Filename: UART.c
+ *      Description:  This file contains the drivers for UART
+ *
+ *      Author: Sarang Kulkarni
+ *
+ ****************************************************************************/
+
 #include "MKL25Z4.h"
 #include "UART.h"
 #include <string.h>

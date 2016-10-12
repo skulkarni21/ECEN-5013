@@ -1,3 +1,12 @@
+/***************************************************************************
+ *
+ *  	Filename: test_buff.c
+ *      Description:	This file contains the code for all the unit tests of
+ *      				circular buffer
+ *
+ *      Author: Sarang Kulkarni
+ *
+ ****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>

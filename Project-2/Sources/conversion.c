@@ -10,46 +10,47 @@
 
 
 #include "conversion.h"
+#include <math.h>
 
 
 
 
 // Convert data from a standard integer type into an asci string
-int8_t *my_itoa( uint8_t * str, int32_t data, int32_t base )
+uint8_t *my_itoa( uint8_t * str, int32_t data, int32_t base )
 {
     uint8_t *ptr;
     uint8_t *firstdig;
     uint8_t temp;
     int32_t digval;
-    
+
     ptr = str;
-    
+
     //change the data to an unsigned value if it is negative
     if (data<0)
     {
         *ptr++ = '-';
         data = (uint32_t)(-data);
     }
-    
+
     firstdig = ptr;
-    
+
     do{
         //deal with the base (radix)
         digval = (int32_t)(data % base);
         data /= base;
-        
+
         //transfer to ascii
         if (digval>9)
             *ptr++ = (uint8_t)(digval - 10 + 'a');
-        
+
         else
             *ptr++ = (uint8_t)(digval + '0');
-        
+
     }while (data>0);
-    
+
     //terminate
     *ptr-- = '\0';
-    
+
     //reverse the ascii to correct order
     do{
         temp = *ptr;
@@ -58,7 +59,7 @@ int8_t *my_itoa( uint8_t * str, int32_t data, int32_t base )
         --ptr;
         ++firstdig;
     }while(firstdig < ptr);
-    
+
     return str;
 }
 
@@ -69,11 +70,11 @@ int32_t my_atoi(uint8_t * str)
 {
     uint32_t result = 0;
     uint32_t sign = 0;
-    
+
     // whitespace characters
     while (*str==' ' || *str=='\t' || *str=='\n')
         ++str;
-    
+
     //sign character
     if (*str=='-')
     {
@@ -84,14 +85,14 @@ int32_t my_atoi(uint8_t * str)
     {
         ++str;
     }
-    
+
     //numbers
     while (*str>='0' && *str<='9')
     {
         result = result*10 + *str - '0';
         ++str;
     }
-    
+
     // return result
     if (sign==1)
         return -result;
@@ -107,20 +108,20 @@ float TransferFloatingToDecimal(uint8_t s[32])
     int16_t sign, exp;
     uint32_t mant;
     int16_t i;
-    
+
     //The first bit  is "SIGN"
     sign = s[0] - '0';
-    
+
     exp = 0;
     for (i = 1; i <= 8; i++)
         exp = exp * 2 + (s[i] - '0');
-    
+
     // Remove the exponent bias
     exp -= 127;
-    
+
 
     // Should really check for +/-Infinity and NaNs here
-    
+
     if (exp > -127)
     {
         // Normal(ized) numbers
@@ -137,92 +138,92 @@ float TransferFloatingToDecimal(uint8_t s[32])
         exp -= 23;
     }
 
-    
+
     //Deal with Mantissa
     for (i = 9; i <= 31; i++)
         mant = mant * 2 + (s[i] - '0');
-    
+
     f = mant;
-    
+
     while (exp > 0)
         f *= 2, exp--;
-    
+
     // Or here?
     while (exp < 0)
         f /= 2, exp++;
-    
+
     if (sign)
         f = -f;
-    
+
     return f;
 }
 
 
-//Convert data from a standard float type into an asci string
-int8_t my_ftoa(uint8_t* str, float data)
+
+//Convert data from a standard float type into an ascii string
+void reverse(uint8_t *str, uint32_t len)
 {
-    uint16_t int_part;
-    float float_part;
-    uint16_t sign = 0;
-    
-    uint16_t temp;
-    uint16_t count = 0;
-    uint16_t precision = 3; //at least 3 decimal places for the float part
-    
-    uint8_t *ptr;
-    uint8_t *ptr_1;
-    
-    if(str == NULL) return -1;
-    ptr = str;
-    
-    //if data < 0
-    if(data < 0)
+    int i=0, j=len-1, temp;
+    while (i<j)
     {
-        sign = 1;
-        data = 0 - data;
+        temp = *(str+i);
+        *(str+i) = *(str+j);
+        *(str+j) = temp;
+        i++; j--;
     }
-    
-    int_part = (uint16_t)data;
-    float_part = data - int_part;
-    
-    //Deal with the integer to string
-    do
-    {
-        temp = int_part % 10;
-        *(str++) = temp + '0';
-    }while((int_part = int_part /10) != 0);
-    
-    if(sign == 1)
-    {
-        *(str++) = '-';
-    }
-    ptr_1 = str;
-    ptr_1--;
-    
-    while(ptr < ptr_1)
-    {
-        *ptr = *ptr + *ptr_1;
-        *ptr_1 = *ptr - *ptr_1;
-        *ptr = *ptr -*ptr_1;
-        ptr++;
-        ptr_1--;
-    }
-    *(str++) = '.';     //point
-
-    //Deal with the float to string
-    do
-    {
-        temp = (uint16_t)(float_part*10);
-        *(str++) = temp + '0';
-
-        if((++count) == precision)
-            break;
-        
-        float_part = float_part*10 - temp;
-        
-    }while(!(float_part > -0.000001 && float_part < 0.000001));
-    
-    *str = '\0';
-    return 0;
 }
+
+ // Converts a given integer x to string str[].  d is the number
+ // of digits required in output. If d is more than the number
+ // of digits in x, then 0s are added at the beginning.
+uint8_t intToStr(uint16_t x, uint8_t str[], uint32_t d)
+{
+    int i = 0;
+    while (x)
+    {
+        *(str+i) = (x%10) + '0';
+        i++;
+        x = x/10;
+    }
+
+    // If number of digits required is more, then
+    // add 0s at the beginning
+    while (i < d){
+        *(str+i) = '0';
+        i++;
+    }
+
+    reverse(str, i);
+    *(str+i) = '\0';
+    return i;
+}
+
+// Converts a floating point number to string.
+void my_ftoa(float n, uint8_t *res, uint16_t afterpoint)
+{
+    // Extract integer part
+    uint16_t ipart = (uint16_t)n;
+
+    // Extract floating part
+    float fpart = n - (float)ipart;
+
+    // convert integer part to string
+    uint8_t i = intToStr(ipart, res, 0);
+
+    // check for display option after point
+    if(fpart != 0){
+    	if (afterpoint != 0)
+    	{
+    		*(res+i) = '.';  // add dot
+
+    		// Get the value of fraction part upto given no.
+    		// of points after dot. The third parameter is needed
+    		// to handle cases like 233.007
+    		fpart = fpart * pow(10, afterpoint);
+
+    		intToStr((uint16_t)fpart, res + i + 1, afterpoint);
+    	}
+    }
+}
+
 

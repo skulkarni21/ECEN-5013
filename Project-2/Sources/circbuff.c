@@ -1,3 +1,11 @@
+/***************************************************************************
+ *
+ *  	Filename: CircBuff.c
+ *      Description:  This file contains the functions for cicular buffer
+ *
+ *      Author: Sarang Kulkarni
+ *
+ ****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -29,7 +37,6 @@ state add_item(CircBuff_t *cb, uint8_t item){
 /*This function remove an item from the buffer*/
 state remove_item(CircBuff_t *cb, volatile uint8_t * dest){
 	if (IfEmpty(cb)){
-	//	printf("Nothing to remove buffer empty");
 		return EMPTY ;
 	}
 
@@ -44,7 +51,7 @@ state remove_item(CircBuff_t *cb, volatile uint8_t * dest){
 }
 
 /*This function initialises the circular buffer of a perticular length*/
-void init_buff(CircBuff_t *buff, uint8_t length){
+void init_buff(CircBuff_t *buff, uint32_t length){
 	buff->buffer = malloc(length);
 	buff->head = buff->buffer;
 	buff->tail = buff->buffer;
