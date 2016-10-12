@@ -1,6 +1,8 @@
 #include "MKL25Z4.h"
 #include "UART.h"
+#include <string.h>
 #include "circbuff.h"
+#include "conversion.h"
 
 void UART0_init(void){
 	uint16_t sbr;
@@ -38,14 +40,6 @@ void UART0_init(void){
     UART_C2_REG(UART0_BASE_PTR) |= (UART_C2_TE_MASK | UART_C2_RE_MASK ); //Switch on transmitter and receiver
   }
 
-void write_string(uint8_t *str){
-	while(*str !='\0'){
-		add_item(&tx_buff, *str++);
-	}
-
-	if(!(IfEmpty(&tx_buff)) && !(UART0_C2_REG(UART0) & UART0_C2_TIE_MASK ))
-			UART0_C2 |= UART_C2_TIE_MASK;
-}
 
 void UART0_IRQHandler(void){
 	__asm("cpsid i");

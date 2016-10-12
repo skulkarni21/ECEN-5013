@@ -33,71 +33,87 @@
 #include "UART.h"
 #include "LED.h"
 #include "test_buff.h"
-#include "LPTMR.h"
+#include "conversion.h"
+#include "timer.h"
+#include "profile_test.h"
+#include "log.h"
 
 #define CLOCK_STATE 1 //set clock at 48Mhz and bus at 24Mhz
 
-char string[7]="sarang";
-uint8_t value, color=0;
+uint8_t string[7]="sarang",sentence[200];
+uint8_t value, color=0,mode=0,i;
 uint16_t bright=100;
 
 void process(uint8_t value){
 	uint8_t value_r;
-	if(value == 'a'){
-		if(color == 0)
-			color = 7;
-		else
-			color--;
-	}
-	else if(value == 'd'){
-		if(color == 7)
-			color = 0;
-		else
-			color++;
-	}
-
-	if(value == 'w'){
-		if(bright==1000)
-			bright =1000;
-		else
-			bright += 100;
-	}
-	else if(value == 's'){
-		if(bright == 0)
-			bright = 0;
-		else
-			bright -= 100;
-	}
-
-	/*if(value == ':'){
-			write_string("Enter the sentence \n");
-			while(IfEmpty(&rx_buff));
-			remove_item(&rx_buff, &value_r);
-			while(value_r != '\n'){
-			write_string(&value);
-			remove_item(&rx_buff, &value_r);
+	if(mode == 0){
+		if(value == ':'){
+				write_string("Enter the sentence \n");
+				mode =1;
+				i=0;
 		}
-	}*/
+		else if(value == 'a'){
+			if(color == 0)
+				color = 7;
+			else
+				color--;
+		}
+		else if(value == 'd'){
+			if(color == 7)
+				color = 0;
+			else
+				color++;
+		}
+
+		else if(value == 'w'){
+			if(bright==1000)
+				bright =1000;
+			else
+				bright += 100;
+		}
+		else if(value == 's'){
+			if(bright == 0)
+				bright = 0;
+			else
+				bright -= 100;
+		}
+
+	}
+	else if(mode ==1){
+		if(value == ':'){
+			sentence[i]='\0';
+			write_string(sentence);
+			mode=0;
+		}
+		else{
+			sentence[i] = value;
+			i++;
+		}
+	}
 }
 
 int main(void)
 {
-	CircBuff_t test_buff;
-	uint8_t result;
+	/*CircBuff_t test_buff;
+	float result=10.45;
+	uint8_t a[20];
+	uint8_t b=12;*/
 	UART0_init();
 	led_pwm_init();
-	init_buff(&tx_buff,200);//initialize TX buffer of 100 bytes
-	init_buff(&rx_buff,200);//initialize RX buffer of 100 bytes
+	init_buff(&tx_buff,2000);//initialize TX buffer of 100 bytes
+	init_buff(&rx_buff,2000);//initialize RX buffer of 100 bytes
 
-	init_buff(&test_buff,10);
+	//init_buff(&test_buff,10);
+	pit_init();
 	__asm("cpsie i");		//Enable global interrupts
 
-	//write_string(string);
-	result = test_all_param(&test_buff);
-	if(result == SUCCESS)
-		write_string("\n buffer good");
-	else
-		write_string("\n buffer bad");
+	write_string("Welcome\n");
+
+	//profile_tests();
+	//my_ftoa(a, result);
+	//write_string(a);
+
+	//log1("result =", result);
 
 	while(1){
 		if(!IfEmpty(&rx_buff)){
