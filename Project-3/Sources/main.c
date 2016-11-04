@@ -32,27 +32,38 @@
 #include "Message.h"
 #include "log.h"
 #include "timer.h"
+#include "nRF24L01.h"
+#include "SPI.h"
+
 
 CI_Msg msg;
 
 int main(void)
 {
+	uint8_t status,i;
 
 	UART0_init();
-	led_pwm_init();
+	//led_pwm_init();
 	init_buff(&tx_buff,200);//initialize TX buffer of 100 bytes
 	init_buff(&rx_buff,200);//initialize RX buffer of 100 bytes
 
 	__asm("cpsie i");		//Enable global interrupts
-	log0("welcome");
+	log0("welcome\n");
+
+	SPI_init();
+	//for(i=0;i<10000;i++);
+	status=write_register(NRF_CONFIG,0x7C);
+	log0(&status);
+	status=read_register(NRF_CONFIG);
+	log0(&status);
 
 	while(1){
-		if(rx_buff .num_items == 5){
+		/*if(rx_buff .num_items == 5){
 			__asm("cpsid i");
 			Read_CI_Msg(&msg);
 			__asm("cpsie i");
 			Decode_CI_Msg(&msg);
-		}
+		}*/
 	}
     return 0;
 }

@@ -1,3 +1,6 @@
+#ifndef MSG
+#define MSG
+
 #include "MKL25Z4.h"
 #include "circbuff.h"
 #include "LED.h"
@@ -20,3 +23,5 @@ typedef struct CI_Msg_t{
 
 void Decode_CI_Msg(CI_Msg* msg);
 void Read_CI_Msg(CI_Msg*msg);
+
+#endif
