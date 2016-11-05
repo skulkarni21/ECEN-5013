@@ -65,6 +65,13 @@ int main(void)
 			Decode_CI_Msg(&msg);
 		}*/
 	}
+	
+	#ifdef PROFILE
+	//profile_test_2();
+	//profile_tests();
+	DMA_profile_test();
+	
+#endif
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////
