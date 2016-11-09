@@ -30,3 +30,29 @@ uint8_t read_register(uint8_t reg){
 
 	return result;
 }
+
+uint8_t write_register_multi(uint8_t reg,uint8_t* value,uint8_t len ){
+	uint8_t status;
+
+	cs_low();
+	status = SPI_transfer(W_REGISTER | ( REGISTER_MASK & reg ));
+
+	while(len--)
+		SPI_transfer(*value++);
+
+	cs_high();
+
+	return status;
+}
+
+uint8_t read_register_multi(uint8_t reg, uint8_t* buf, uint8_t len){
+	uint8_t status;
+
+	cs_low();
+	status=SPI_transfer( R_REGISTER | ( REGISTER_MASK & reg ) );
+	while(len--)
+		*buf++ = SPI_transfer(0xff);
+	cs_high();
+
+	return status;
+}

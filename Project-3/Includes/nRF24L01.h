@@ -108,3 +108,5 @@ void ce_low(void);
 void ce_high(void);
 uint8_t write_register(uint8_t reg,uint8_t value );
 uint8_t read_register(uint8_t reg);
+uint8_t read_register_multi(uint8_t reg, uint8_t* buf, uint8_t len);
+uint8_t write_register_multi(uint8_t reg,uint8_t* value,uint8_t len );
