@@ -19,11 +19,31 @@ void Decode_CI_Msg(CI_Msg* msg){
 			LED_select(GREEN,(msg->data[0]*100));
 			break;
 		}
+		case LED_YELLOW:{
+			log0("3");
+			LED_select(YELLOW,(msg->data[0]*100));
+			break;
+		}
+		case LED_CYAN:{
+			log0("3");
+			LED_select(CYAN,(msg->data[0]*100));
+			break;
+		}
+		case LED_MAGENTA:{
+			log0("3");
+			LED_select(MAGENTA,(msg->data[0]*100));
+			break;
+		}
+		case LED_WHITE:{
+			log0("3");
+			LED_select(WHITE,(msg->data[0]*100));
+			break;
+		}
 	}
 }
 
 void Read_CI_Msg(CI_Msg*msg){
-	uint8_t i;
+	uint8_t i, checksum;
 
 		remove_item(&rx_buff,&(msg->command));
 		remove_item(&rx_buff,&(msg->length));
@@ -40,4 +60,10 @@ void Read_CI_Msg(CI_Msg*msg){
 		}
 
 		remove_item(&rx_buff, &(msg->checksum));
+		checksum = msg->command + msg->length + msg->data[0] + msg->data[1];
+		if(checksum == msg->checksum)
+			log0("\n checksum ok");
+		else
+			log0("Checksum fail");
+
 }

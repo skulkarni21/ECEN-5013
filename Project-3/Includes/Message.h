@@ -11,7 +11,11 @@
 typedef enum Cmds_t{
 	LED_RED = 0x01,
 	LED_BLUE = 0x02,
-	LED_GREEN = 0x03
+	LED_GREEN = 0x03,
+	LED_CYAN = 0x04,
+	LED_MAGENTA=0x05,
+	LED_YELLOW=0x06,
+	LED_WHITE=0x07
 }Cmds;
 
 typedef struct CI_Msg_t{
