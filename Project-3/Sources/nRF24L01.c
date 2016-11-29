@@ -39,7 +39,6 @@ uint8_t write_register_multi(uint8_t reg,uint8_t* value,uint8_t len ){
 
 	while(len--)
 		SPI_transfer(*value++);
-
 	cs_high();
 
 	return status;
@@ -55,4 +54,7 @@ uint8_t read_register_multi(uint8_t reg, uint8_t* buf, uint8_t len){
 	cs_high();
 
 	return status;
+}
+uint8_t set_tx_addr(uint8_t* value){
+	write_register_multi(NRF_TX_ADDR,value,5);
 }
